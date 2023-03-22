@@ -1,0 +1,12 @@
+scikit-learn==1.2.2
+tensorflow-cpu==2.7.0
+pyvi==0.1.1
+underthesea==6.0.0
+transformers==4.26.0
+matplotlib==3.6.3
+pandas==1.5.2
+beautifulsoup4==4.11.2
+fastapi==0.94.1
+protobuf==3.20.*
+uvicorn==0.21.1
+ray==2.3.0
