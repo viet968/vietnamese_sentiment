@@ -21,8 +21,8 @@ from sklearn.model_selection import train_test_split
 import sklearn
 
 async def load_mlm_model():
-    tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-large")
-    model = AutoModelForMaskedLM.from_pretrained("vinai/phobert-large")
+    tokenizer = AutoTokenizer.from_pretrained("./models")
+    model = AutoModelForMaskedLM.from_pretrained("./models")
     return tokenizer, model
 
 
@@ -40,27 +40,96 @@ def preprocessingData(input):
 
 
 def clean_emoji(input):
-    emoj = re.compile("["
-                      u"\U0001F600-\U0001F64F"  # emoticons
-                      u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-                      u"\U0001F680-\U0001F6FF"  # transport & map symbols
-                      u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                      u"\U00002500-\U00002BEF"  # chinese char
-                      u"\U00002702-\U000027B0"
-                      u"\U000024C2-\U0001F251"
-                      u"\U0001f926-\U0001f937"
-                      u"\U00010000-\U0010ffff"
-                      u"\u2640-\u2642"
-                      u"\u2600-\u2B55"
-                      u"\u200d"
-                      u"\u23cf"
-                      u"\u23e9"
-                      u"\u231a"
-                      u"\ufe0f"  # dingbats
-                      u"\u3030"
+    positive_emoji = re.compile("["
+                      u"\U0001F600"
+                    u"\U0001F601"
+                    u"\U0001F602"
+                    u"\U0001F603"
+                    u"\U0001F604"
+                    u"\U0001F605"
+                    u"\U0001F606"
+                    u"\U0001F609"
+                    u"\U0001F60A"
+                    u"\U0001F60B"
+                    u"\U0001F60C"
+                    u"\U0001F60D"
+                    u"\U0001F60E"
+                    u"\U0001F60F"
+                    u"\U0001F618"
+                    u"\U0001F617"
+                    u"\U0001F619"
+                    u"\U0001F61A"
+                    u"\U0001F642"
+                    u'\u2764\ufe0f'
+                    u'\U0001F917'
+                    u'\U0001F92A'
+                    u'\U0001F44D'
+                    u'\U0001F609'
+                    u'\U0001f495'
+                    u'\U0001F60E'
+                    u'\U0001F929'
+                    u'\U0001F44D\U0001F3FB'
+                    u'\U0001F44C'
+                    u'\U0001F924'
+                    u'\U0001F917'
+                    u'\U0001F606'
+                    u'\U0001F92D'
+                    u'\U0001F496'
+                    u'\U0001F636'
+                    u'\U0001F609'
+                    u'\U0001F60C'
+                    u'\U0001F4AF'
+                    u'\U0001F914'
+                    u'\U0001F923'
+                    u'\U0001F642'
+                    u'\U0001F929'
+                    u'\U0001F493'
+                    u'\U0001F61D'   
+                    u'\U0001F61D'
+                    
                       "]+", re.UNICODE)
 
-    input = re.sub(emoj, '', input)  # Xóa biểu tượng cảm xúc
+    negative_emoji = re.compile("["
+                      u"\U0001F612"
+                        u"\U0001F613"
+                        u"\U0001F614"
+                        u"\U0001F615"
+                        u"\U0001F616"
+                        u"\U0001F61E"
+                        u"\U0001F61F"
+                        u"\U0001F621"
+                        u"\U0001F622"
+                        u"\U0001F623"
+                        u"\U0001F625"
+                        u"\U0001F626"
+                        u"\U0001F627"
+                        u"\U0001F628"
+                        u"\U0001F629"
+                        u"\U0001F62A"
+                        u"\U0001F62B"
+                        u"\U0001F62D"
+                        u"\U0001F641"
+                        u'\U0001F624'
+                        u'\U0001F611'
+                        u'\U0001F616'
+                        u'\U0001F92C'
+                        u'\U0001F611'
+                        u'\U0001F630'
+                        u'\U0001F621'
+                        u'\U0001F643'
+                        u'\U0001F61D'
+                        u'\U0001F61D'
+                        u'\U0001F620'
+                      "]+", re.UNICODE)
+
+    neu_emoji = re.compile("["
+                        u'\U0001F610'
+                      "]+", re.UNICODE)
+
+
+    input = re.sub(positive_emoji, 'tích cực', input)
+    input = re.sub(negative_emoji, 'tiêu cực', input)# Xóa biểu tượng cảm xúc
+    input = re.sub(neu_emoji, 'bình thường', input)
     return input
 
 
@@ -75,7 +144,15 @@ def clean_acronyms(input):
                'sp': 'sản phẩm',
                'kh': 'không',
                'mn': 'mọi người',
-               'good': 'tốt'}
+               'good': 'tốt',
+               'sz': 'kích cỡ',
+               'nt': 'nhắn tin',
+               'trl': 'trả lời',
+               'k': 'không',
+                'size': 'kích cỡ',
+               'mng': 'mọi người',
+
+               }
 
     words = input.split()
     for i, word in enumerate(words):
@@ -188,8 +265,8 @@ def pr(input):
 
 
 def handle_negation(text):
-    negation_words = ['không', 'chưa', 'chẳng', 'chả', 'hết', 'không có', 'không thể', 'không nên', "tệ", "xấu"]
-    positive_words = ['tốt', 'tuyệt', 'đẹp', 'hợp', 'ổn', 'xinh']
+    negation_words = ['không', 'chưa', 'chẳng', 'chả', 'hết', "tệ", "xấu"]
+    positive_words = ['tốt', 'tuyệt', 'đẹp', 'hợp', 'ổn', 'xinh', 'ưng', 'ngon', 'có', 'thể', 'nên']
     negation_flag = False
     words = text.split()
     i = 0
@@ -242,8 +319,8 @@ async def pre_data(start, end, input_data, label_data, model, tokenizer):
     while start <= end:
         print(start)
         print(input_data[start])
-        input_text_pre = preprocessingData(input_data[start])  # chuẩn hóa cơ bản (xóa dấu câu, kí tự đặc biệt,...)
-        input_text_pre = clean_emoji(input_text_pre)  # xóa biểu tượng cảm xúc
+        input_text_pre = clean_emoji(input_data[start])  # xóa biểu tượng cảm xúc
+        input_text_pre = preprocessingData(input_text_pre)  # chuẩn hóa cơ bản (xóa dấu câu, kí tự đặc biệt,...)
         input_text_pre = clean_duplicate(input_text_pre)  # xóa kí tự trùng lặp
         input_text_pre = clean_acronyms(input_text_pre)  # chuẩn hóa từ viết tắt
 
